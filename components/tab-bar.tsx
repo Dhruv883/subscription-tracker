@@ -24,11 +24,11 @@ const ROUTE_ICONS = {
 
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const getIcon = (routeName: string, isFocused: boolean) => {
-    const color = isFocused ? "#FFE0C2" : "#FFFFFF";
+    const color = isFocused ? "#dcd5d5ff" : "#FFFFFF";
     const iconProps: IconProps = {
       width: 30,
       height: 30,
-      stroke: routeName === "add" || isFocused ? "#000000" : color,
+      stroke: routeName !== "add" || isFocused ? "#000000" : color,
     };
 
     const IconComponent =
@@ -87,11 +87,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    paddingBottom: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#2b2b2b",
-    backgroundColor: "#0f1720",
+    paddingBottom: 16,
+    paddingTop: 10,
+    borderTopWidth: 0.2,
+    borderTopColor: "#9ea0a1ff",
+    backgroundColor: "#ffffff",
   },
   tabButton: {
     height: 56,
@@ -101,11 +101,10 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   tabButtonFocused: {
-    backgroundColor: "#FFE0C2",
-    color: "#000000",
+    backgroundColor: "#dcd5d5ff",
   },
   tabButtonAdd: {
-    backgroundColor: "#FFB86B",
+    backgroundColor: "#000000",
   },
 });
 
