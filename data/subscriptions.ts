@@ -51,6 +51,26 @@ export const MOCK_SUBSCRIPTIONS: Subscription[] = [
     billingCycle: "yearly",
     isActive: false,
   },
+  {
+    id: "gpt2",
+    logo: "https://img.logo.dev/openai.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+    name: "ChatGPT Plus",
+    category: "Productivity",
+    price: 20,
+    billingCycle: "monthly",
+    nextBill: addDaysIso(28),
+    isActive: false,
+  },
+  {
+    id: "netflix2",
+    logo: "https://img.logo.dev/netflix.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+    name: "Netflix",
+    category: "Streaming",
+    price: 15,
+    billingCycle: "monthly",
+    nextBill: sampleDate(7),
+    isActive: false,
+  },
 ];
 
 export const MOCK_SUBSCRIPTIONS_BY_DATE: {

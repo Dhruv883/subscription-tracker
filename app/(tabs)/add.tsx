@@ -1,23 +1,20 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import AddSubscriptionForm from "@/components/add-subscription";
+import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Add() {
   return (
     <SafeAreaView style={styles.SafeAreaViewContainer} edges={{ top: "off" }}>
-      <ScrollView>
-        <View>
-          <Text>Add Page</Text>
-        </View>
-      </ScrollView>
+      <View style={{ flex: 1 }}>
+        <AddSubscriptionForm />
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   SafeAreaViewContainer: {
-    borderColor: "red",
-    borderWidth: 2,
-    height: "100%",
+    flex: 1,
   },
   text: {
     fontSize: 18,
