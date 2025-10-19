@@ -3,6 +3,7 @@ import AnalyticsIcon from "@/assets/icons/analytics.svg";
 import HomeIcon from "@/assets/icons/home.svg";
 import ProfileIcon from "@/assets/icons/profile.svg";
 import SubscriptionIcon from "@/assets/icons/subscription.svg";
+import { useSheets } from "@/providers/sheets-context";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
@@ -23,6 +24,7 @@ const ROUTE_ICONS = {
 } as const;
 
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
+  const { openAddSheet } = useSheets();
   const getIcon = (routeName: string, isFocused: boolean) => {
     const color = isFocused ? "#dcd5d5ff" : "#FFFFFF";
     const iconProps: IconProps = {
@@ -37,6 +39,10 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   };
 
   const handleTabPress = (route: any, isFocused: boolean) => {
+    if (route.name === "add") {
+      openAddSheet();
+      return;
+    }
     const event = navigation.emit({
       type: "tabPress",
       target: route.key,

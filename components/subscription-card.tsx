@@ -9,7 +9,8 @@ interface SubscriptionCardProps {
   price: number;
   date?: string;
   billingCycle: string;
-  onPress?: (id: string) => void; // <-- Add this line
+  onPress?: (id: string) => void;
+  isActive?: boolean;
 }
 
 const SubscriptionCard = ({
@@ -21,6 +22,7 @@ const SubscriptionCard = ({
   billingCycle,
   id,
   onPress,
+  isActive = true,
 }: SubscriptionCardProps) => {
   const handlePress = () => {
     if (onPress) {
@@ -29,8 +31,8 @@ const SubscriptionCard = ({
   };
 
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.9}>
-      <View style={styles.card}>
+    <TouchableOpacity onPress={handlePress} activeOpacity={1}>
+      <View style={[styles.card, !isActive && { opacity: 0.75 }]}>
         <View style={styles.row}>
           {logo ? (
             <Image source={{ uri: logo }} style={styles.logo} />
@@ -43,7 +45,7 @@ const SubscriptionCard = ({
           )}
           <View style={{ flex: 1 }}>
             <Text style={styles.name}>{name}</Text>
-            <Text style={styles.category}>{category}</Text>
+            <Text style={styles.category}>{date ? date : category}</Text>
           </View>
           <View
             style={{
@@ -52,13 +54,10 @@ const SubscriptionCard = ({
               alignItems: "center",
             }}
           >
-            <Text style={styles.price}>${price}</Text>
-            <Text style={styles.billingCycle}>
-              {billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1)}
-            </Text>
+            <Text style={styles.price}>${price.toFixed(2)}</Text>
+            <Text style={styles.billingCycle}>{billingCycle}</Text>
           </View>
         </View>
-        {date && <Text style={styles.date}>{date}</Text>}
       </View>
     </TouchableOpacity>
   );
@@ -123,11 +122,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     color: "#1a1a1a",
-  },
-  date: {
-    marginTop: 6,
-    fontSize: 12,
-    color: "#aaa",
   },
 });
 

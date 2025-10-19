@@ -1,0 +1,121 @@
+import { Subscription } from "@/types/subscription";
+import { addDaysIso, sampleDate } from "@/utils/date";
+
+export const MOCK_SUBSCRIPTIONS: Subscription[] = [
+  {
+    id: "chatgpt",
+    logo: "https://img.logo.dev/openai.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+    name: "ChatGPT Plus",
+    category: "Productivity",
+    price: 20,
+    billingCycle: "monthly",
+    nextBill: addDaysIso(28),
+    isActive: true,
+  },
+  {
+    id: "netflix",
+    logo: "https://img.logo.dev/netflix.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+    name: "Netflix",
+    category: "Streaming",
+    price: 15,
+    billingCycle: "monthly",
+    nextBill: sampleDate(7),
+    isActive: true,
+  },
+  {
+    id: "spotify",
+    logo: "https://img.logo.dev/spotify.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+    name: "Spotify",
+    category: "Music",
+    price: 10,
+    billingCycle: "monthly",
+    nextBill: sampleDate(14),
+    isActive: true,
+  },
+  {
+    id: "youtube-premium",
+    logo: "https://img.logo.dev/youtube.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+    name: "YouTube Premium",
+    category: "Streaming",
+    price: 18,
+    billingCycle: "monthly",
+    nextBill: sampleDate(21),
+    isActive: true,
+  },
+  {
+    id: "prime",
+    logo: "https://img.logo.dev/amazon.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+    name: "Amazon Prime",
+    category: "Shopping",
+    price: 130,
+    billingCycle: "yearly",
+    isActive: false,
+  },
+];
+
+export const MOCK_SUBSCRIPTIONS_BY_DATE: {
+  [date: string]: Subscription[];
+} = {
+  "June 24, 2024": [
+    {
+      logo: "https://img.logo.dev/netflix.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+      name: "Netflix",
+      category: "Streaming",
+      price: 15,
+      billingCycle: "monthly",
+      id: "netflix",
+    },
+  ],
+  "July 1, 2024": [
+    {
+      logo: "https://img.logo.dev/spotify.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+      name: "Spotify",
+      category: "Music",
+      price: 10,
+      billingCycle: "monthly",
+      id: "spotify",
+    },
+    {
+      logo: "https://img.logo.dev/youtube.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+      name: "YouTube",
+      category: "Streaming",
+      price: 20,
+      billingCycle: "yearly",
+      id: "youtube",
+    },
+  ],
+  "July 15, 2024": [
+    {
+      logo: "https://img.logo.dev/netflix.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+      name: "Netflix",
+      category: "Streaming",
+      price: 10,
+      billingCycle: "monthly",
+      id: "netflix",
+    },
+    {
+      logo: "https://img.logo.dev/youtube.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+      name: "YouTube",
+      category: "Streaming",
+      price: 20,
+      billingCycle: "monthly",
+      id: "youtube",
+    },
+    {
+      logo: "https://img.logo.dev/spotify.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+      name: "Spotify",
+      category: "Music",
+      price: 10,
+      billingCycle: "weekly",
+      id: "spotify",
+    },
+    {
+      logo: "https://img.logo.dev/netflix.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
+      name: "Netflix",
+      category: "Streaming",
+      price: 20,
+      billingCycle: "quarterly",
+      id: "netflix",
+    },
+  ],
+};

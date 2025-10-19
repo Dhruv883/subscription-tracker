@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 
-type SubscriptionDetailsProps = {
+export type SubscriptionDetailsProps = {
   logo?: string;
   name?: string;
   isActive?: boolean;
@@ -19,7 +19,6 @@ type SubscriptionDetailsProps = {
   billingCycle?: string;
   signupDate?: string;
   lastPayment?: string;
-  paymentMethodMasked?: string;
   onManage?: () => void;
   onDelete?: () => void;
 };
@@ -42,7 +41,6 @@ const SubscriptionDetailsCard = ({
     { label: "Billing Cycle", value: billingCycle },
     { label: "Sign-up Date", value: signupDate },
     { label: "Last Payment", value: lastPayment },
-    //     { label: "Payment Method", value: paymentMethodMasked },
   ];
 
   return (

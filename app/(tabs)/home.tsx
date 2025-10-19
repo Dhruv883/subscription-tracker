@@ -1,9 +1,12 @@
 import CategoryItem from "@/components/category-badge";
 import DonutChart from "@/components/donut-chart";
 import SubscriptionCard from "@/components/subscription-card";
-import SubscriptionDetailsCard from "@/components/subscription-detail";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import React, { useRef } from "react";
+import { MOCK_SUBSCRIPTIONS_BY_DATE } from "@/data/subscriptions";
+import { useSheets } from "@/providers/sheets-context";
+import { Subscription } from "@/types/subscription";
+import { formatDate } from "@/utils/date";
+import { capitalize } from "@/utils/string";
+import React from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -13,8 +16,7 @@ import {
 } from "react-native";
 
 export default function SubscriptionOverview() {
-  const bottomSheetRef = useRef<BottomSheet>(null);
-
+  const { openSubscriptionSheet } = useSheets();
   const totalSpent = 275;
 
   const categories = [
@@ -29,84 +31,18 @@ export default function SubscriptionOverview() {
     { name: "Education", color: "#5BC0EB", amount: 10 },
   ];
 
-  const subscriptionsByDate: {
-    [date: string]: {
-      logo: string;
-      name: string;
-      category: string;
-      price: number;
-      billingCycle: string;
-      id: string;
-    }[];
-  } = {
-    "June 24, 2024": [
-      {
-        logo: "https://img.logo.dev/netflix.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
-        name: "Netflix",
-        category: "Streaming",
-        price: 15,
-        billingCycle: "monthly",
-        id: "netflix",
-      },
-    ],
-    "July 1, 2024": [
-      {
-        logo: "https://img.logo.dev/spotify.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
-        name: "Spotify",
-        category: "Music",
-        price: 10,
-        billingCycle: "monthly",
-        id: "spotify",
-      },
-      {
-        logo: "https://img.logo.dev/youtube.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
-        name: "YouTube",
-        category: "Streaming",
-        price: 20,
-        billingCycle: "yearly",
-        id: "youtube",
-      },
-    ],
-    "July 15, 2024": [
-      {
-        logo: "https://img.logo.dev/netflix.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
-        name: "Netflix",
-        category: "Streaming",
-        price: 10,
-        billingCycle: "monthly",
-        id: "netflix",
-      },
-      {
-        logo: "https://img.logo.dev/youtube.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
-        name: "YouTube",
-        category: "Streaming",
-        price: 20,
-        billingCycle: "monthly",
-        id: "youtube",
-      },
-      {
-        logo: "https://img.logo.dev/spotify.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
-        name: "Spotify",
-        category: "Music",
-        price: 10,
-        billingCycle: "weekly",
-        id: "spotify",
-      },
-      {
-        logo: "https://img.logo.dev/netflix.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
-        name: "Netflix",
-        category: "Streaming",
-        price: 20,
-        billingCycle: "quarterly",
-        id: "netflix",
-      },
-    ],
-  };
-
-  const handleCardPress = (id: string) => {
-    console.log("Card pressed:", id);
-
-    bottomSheetRef.current?.expand();
+  const handleCardPress = (sub: Subscription) => {
+    openSubscriptionSheet({
+      logo: sub.logo,
+      name: sub.name,
+      isActive: sub.isActive !== false,
+      amount: `$${sub.price.toFixed(2)}`,
+      nextBilling: sub.nextBill ? formatDate(sub.nextBill) : "—",
+      category: sub.category,
+      billingCycle: capitalize(sub.billingCycle),
+      signupDate: "—",
+      lastPayment: "—",
+    });
   };
 
   return (
@@ -140,7 +76,7 @@ export default function SubscriptionOverview() {
         </View>
 
         <View style={{ marginTop: 16, paddingBottom: 32 }}>
-          {Object.entries(subscriptionsByDate).map(([date, subs]) => (
+          {Object.entries(MOCK_SUBSCRIPTIONS_BY_DATE).map(([date, subs]) => (
             <View key={date}>
               <Text style={styles.dateHeader}>{date}</Text>
               {subs.map((sub, idx) => (
@@ -152,18 +88,13 @@ export default function SubscriptionOverview() {
                   category={sub.category}
                   price={sub.price}
                   billingCycle={sub.billingCycle}
-                  onPress={handleCardPress}
+                  onPress={() => handleCardPress(sub)}
                 />
               ))}
             </View>
           ))}
         </View>
       </ScrollView>
-      <BottomSheet ref={bottomSheetRef} index={-1} enablePanDownToClose={true}>
-        <BottomSheetView>
-          <SubscriptionDetailsCard />
-        </BottomSheetView>
-      </BottomSheet>
     </View>
   );
 }
