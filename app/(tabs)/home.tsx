@@ -1,35 +1,24 @@
-import CategoryItem from "@/components/category-badge";
-import DonutChart from "@/components/donut-chart";
+import SpendSummary from "@/components/spend-summary";
 import SubscriptionCard from "@/components/subscription-card";
-import { MOCK_SUBSCRIPTIONS_BY_DATE } from "@/data/subscriptions";
+import {
+  MOCK_SUBSCRIPTIONS,
+  MOCK_SUBSCRIPTIONS_BY_DATE,
+} from "@/data/subscriptions";
 import { useSheets } from "@/providers/sheets-context";
 import { Subscription } from "@/types/subscription";
 import { formatDate } from "@/utils/date";
+import { computeMonthlyTotal, computeYearlyTotal } from "@/utils/spend";
 import { capitalize } from "@/utils/string";
-import React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React, { useMemo } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function SubscriptionOverview() {
   const { openSubscriptionSheet } = useSheets();
-  const totalSpent = 275;
-
-  const categories = [
-    {
-      name: "Streaming",
-      color: "#7B61FF",
-      amount: 30,
-    },
-    { name: "Music", color: "#FF85A1", amount: 15 },
-    { name: "AI", color: "#7ED957", amount: 20 },
-    { name: "Utilities", color: "#FFC75F", amount: 25 },
-    { name: "Education", color: "#5BC0EB", amount: 10 },
-  ];
+  const monthlyTotal = useMemo(
+    () => computeMonthlyTotal(MOCK_SUBSCRIPTIONS),
+    []
+  );
+  const yearlyTotal = useMemo(() => computeYearlyTotal(MOCK_SUBSCRIPTIONS), []);
 
   const handleCardPress = (sub: Subscription) => {
     openSubscriptionSheet({
@@ -48,34 +37,16 @@ export default function SubscriptionOverview() {
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Overview</Text>
-          <View style={styles.toggleContainer}>
-            <TouchableOpacity
-              style={[styles.toggleButton, styles.activeToggle]}
-            >
-              <Text style={styles.activeText}>Monthly</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.toggleButton}>
-              <Text style={styles.inactiveText}>Yearly</Text>
-            </TouchableOpacity>
-          </View>
+        {/* Rounded header background */}
+        <View style={styles.headerBg}>
+          <SpendSummary
+            monthlyTotal={monthlyTotal}
+            yearlyTotal={yearlyTotal}
+            paddingHorizontal={20}
+          />
         </View>
 
-        <DonutChart totalSpent={totalSpent} />
-
-        <View style={styles.categories}>
-          {categories.map((category, idx) => (
-            <CategoryItem
-              key={idx}
-              name={category.name}
-              color={category.color}
-              amount={category.amount}
-            />
-          ))}
-        </View>
-
-        <View style={{ marginTop: 16, paddingBottom: 32 }}>
+        <View style={styles.sheet}>
           {Object.entries(MOCK_SUBSCRIPTIONS_BY_DATE).map(([date, subs]) => (
             <View key={date}>
               <Text style={styles.dateHeader}>{date}</Text>
@@ -102,50 +73,34 @@ export default function SubscriptionOverview() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9F9FB",
+    backgroundColor: "#F1F2F6",
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 32,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
+  headerBg: {
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    paddingTop: 12,
+    paddingBottom: 14,
+    marginBottom: 8,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1a1a1a",
+  handle: {
+    alignSelf: "center",
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#D1D5DB",
+    marginTop: 2,
   },
-  toggleContainer: {
-    flexDirection: "row",
-    backgroundColor: "#f0f0f0",
-    borderRadius: 25,
-    padding: 4,
-  },
-  toggleButton: {
-    flex: 0,
-    alignItems: "center",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-  },
-  activeToggle: {
-    backgroundColor: "#fff",
-  },
-  activeText: {
-    color: "#000",
-    fontWeight: "600",
-  },
-  inactiveText: {
-    color: "#888",
-  },
-  categories: {
-    marginTop: 12,
-    flexWrap: "wrap",
-    flexDirection: "row",
-    justifyContent: "center",
+  sheet: {
+    marginHorizontal: -20,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 32,
   },
   categoryItem: {
     flexDirection: "row",
@@ -163,9 +118,10 @@ const styles = StyleSheet.create({
     color: "#444",
   },
   dateHeader: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#666",
-    marginTop: 12,
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#9AA0B5",
+    marginTop: 18,
+    marginBottom: 2,
   },
 });

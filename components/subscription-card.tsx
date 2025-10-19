@@ -47,15 +47,11 @@ const SubscriptionCard = ({
             <Text style={styles.name}>{name}</Text>
             <Text style={styles.category}>{date ? date : category}</Text>
           </View>
-          <View
-            style={{
-              width: 75,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
+          <View style={styles.rightCol}>
             <Text style={styles.price}>${price.toFixed(2)}</Text>
-            <Text style={styles.billingCycle}>{billingCycle}</Text>
+            <View style={styles.pill}>
+              <Text style={styles.pillText}>{billingCycle}</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -66,13 +62,13 @@ const SubscriptionCard = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-    paddingRight: 0,
-    marginVertical: 8,
+    borderRadius: 18,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginVertical: 6,
     shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
     elevation: 2,
   },
   row: {
@@ -114,14 +110,32 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   price: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "700",
     color: "#1a1a1a",
   },
   billing: {
     fontSize: 15,
     fontWeight: "600",
     color: "#1a1a1a",
+  },
+  rightCol: {
+    width: 80,
+    justifyContent: "center",
+    alignItems: "flex-end",
+    gap: 6,
+  },
+  pill: {
+    backgroundColor: "#F1F2F6",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+  pillText: {
+    fontSize: 12,
+    color: "#7A7F91",
+    textTransform: "capitalize",
+    fontWeight: "600",
   },
 });
 
