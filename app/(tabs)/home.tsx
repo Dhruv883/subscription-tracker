@@ -21,6 +21,14 @@ export default function SubscriptionOverview() {
   const yearlyTotal = useMemo(() => computeYearlyTotal(MOCK_SUBSCRIPTIONS), []);
 
   const handleCardPress = (sub: Subscription) => {
+    const cycleLabel =
+      (sub as any).billingCycle === "custom" &&
+      (sub as any).customEvery &&
+      (sub as any).customUnit
+        ? `Every ${(sub as any).customEvery} ${(sub as any).customUnit}${
+            (sub as any).customEvery > 1 ? "s" : ""
+          }`
+        : capitalize(sub.billingCycle);
     openSubscriptionSheet({
       id: sub.id,
       logo: sub.logo,
@@ -29,7 +37,7 @@ export default function SubscriptionOverview() {
       amount: `$${sub.price.toFixed(2)}`,
       nextBilling: sub.nextBill ? formatDate(sub.nextBill) : "—",
       category: sub.category,
-      billingCycle: capitalize(sub.billingCycle),
+      billingCycle: cycleLabel,
       signupDate: "—",
       lastPayment: "—",
     });
@@ -58,7 +66,15 @@ export default function SubscriptionOverview() {
                   name={sub.name}
                   category={sub.category}
                   price={sub.price}
-                  billingCycle={sub.billingCycle}
+                  billingCycle={
+                    sub.billingCycle === "custom" &&
+                    (sub as any).customEvery &&
+                    (sub as any).customUnit
+                      ? `Every ${(sub as any).customEvery} ${
+                          (sub as any).customUnit
+                        }${(sub as any).customEvery > 1 ? "s" : ""}`
+                      : sub.billingCycle
+                  }
                   onPress={() => handleCardPress(sub)}
                 />
               ))}

@@ -32,7 +32,13 @@ export default function SubscriptionsScreen() {
   >({});
   const [selectedCycles, setSelectedCycles] = useState<
     Record<BillingCycle, boolean>
-  >({ monthly: false, yearly: false, weekly: false, quarterly: false });
+  >({
+    monthly: false,
+    yearly: false,
+    weekly: false,
+    quarterly: false,
+    custom: false,
+  });
   const [status, setStatus] = useState<"all" | "active" | "cancelled">("all");
 
   const categories = useMemo(() => {
@@ -95,11 +101,20 @@ export default function SubscriptionsScreen() {
       yearly: false,
       weekly: false,
       quarterly: false,
+      custom: false,
     });
     setStatus("all");
   };
 
   const handleOpenDetails = (s: Subscription) => {
+    const cycleLabel =
+      (s as any).billingCycle === "custom" &&
+      (s as any).customEvery &&
+      (s as any).customUnit
+        ? `Every ${(s as any).customEvery} ${(s as any).customUnit}${
+            (s as any).customEvery > 1 ? "s" : ""
+          }`
+        : capitalize(s.billingCycle);
     openSubscriptionSheet({
       id: s.id,
       logo: s.logo,
@@ -108,7 +123,7 @@ export default function SubscriptionsScreen() {
       amount: `$${s.price.toFixed(2)}`,
       nextBilling: s.nextBill ? formatDate(s.nextBill) : "—",
       category: s.category,
-      billingCycle: capitalize(s.billingCycle),
+      billingCycle: cycleLabel,
       signupDate: "—",
       lastPayment: "—",
     });
@@ -163,7 +178,15 @@ export default function SubscriptionsScreen() {
                   name={sub.name}
                   category={sub.category}
                   price={sub.price}
-                  billingCycle={sub.billingCycle}
+                  billingCycle={
+                    sub.billingCycle === "custom" &&
+                    (sub as any).customEvery &&
+                    (sub as any).customUnit
+                      ? `Every ${(sub as any).customEvery} ${
+                          (sub as any).customUnit
+                        }${(sub as any).customEvery > 1 ? "s" : ""}`
+                      : sub.billingCycle
+                  }
                   date={
                     sub.isActive === false
                       ? "Cancelled"

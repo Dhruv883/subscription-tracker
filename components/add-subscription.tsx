@@ -29,6 +29,7 @@ const BILLING_CYCLES: PickerOption[] = [
   { label: "Monthly", value: "monthly" },
   { label: "Quarterly", value: "quarterly" },
   { label: "Yearly", value: "yearly" },
+  { label: "Custom", value: "custom" },
 ];
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -115,16 +116,20 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
   const [nextBill, setNextBill] = useState("");
 
   const [pickerFor, setPickerFor] = useState<
-    null | "category" | "billingCycle"
+    null | "category" | "billingCycle" | "customUnit"
   >(null);
+  const [customEvery, setCustomEvery] = useState("");
+  const [customUnit, setCustomUnit] = useState<PickerOption | null>(null);
 
-  const canSubmit = useMemo(
-    () => name.trim().length > 0 && amount.trim().length > 0,
-    [name, amount]
-  );
+  const canSubmit = useMemo(() => {
+    if (!(name.trim().length > 0 && amount.trim().length > 0)) return false;
+    if (billingCycle.value !== "custom") return true;
+    const n = parseInt(customEvery, 10);
+    return !!n && n > 0 && !!customUnit;
+  }, [name, amount, billingCycle, customEvery, customUnit]);
 
   const handleSubmit = () => {
-    const payload = {
+    const payload: any = {
       name: name.trim(),
       link: link.trim(),
       category: category.value,
@@ -132,6 +137,10 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
       billingCycle: billingCycle.value,
       nextBill: nextBill.trim(),
     };
+    if (billingCycle.value === "custom") {
+      payload.customEvery = parseInt(customEvery, 10);
+      payload.customUnit = customUnit?.value;
+    }
     console.log("Add Subscription ->", payload);
   };
 
@@ -235,6 +244,38 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
           </View>
         </View>
 
+        {billingCycle.value === "custom" && (
+          <View style={[styles.row, { marginTop: 12 }]}>
+            <View style={{ flex: 1, marginRight: 10 }}>
+              <FieldLabel>Every</FieldLabel>
+              <InputWrapper>
+                <TextInput
+                  value={customEvery}
+                  onChangeText={setCustomEvery}
+                  placeholder="e.g. 2"
+                  placeholderTextColor="#9AA0A6"
+                  style={styles.textInput}
+                  keyboardType="number-pad"
+                />
+              </InputWrapper>
+            </View>
+            <View style={{ flex: 1, marginLeft: 10 }}>
+              <FieldLabel>Unit</FieldLabel>
+              <Pressable onPress={() => setPickerFor("customUnit")}>
+                <InputWrapper
+                  right={
+                    <Ionicons name="chevron-down" size={18} color="#777" />
+                  }
+                >
+                  <Text style={styles.valueText}>
+                    {customUnit?.label ?? "Select unit"}
+                  </Text>
+                </InputWrapper>
+              </Pressable>
+            </View>
+          </View>
+        )}
+
         <Pressable
           style={({ pressed }) => [
             styles.submitButton,
@@ -259,7 +300,25 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
           title="Billing Cycle"
           options={BILLING_CYCLES}
           onClose={() => setPickerFor(null)}
-          onSelect={(opt) => setBillingCycle(opt)}
+          onSelect={(opt) => {
+            setBillingCycle(opt);
+            if (opt.value !== "custom") {
+              setCustomEvery("");
+              setCustomUnit(null);
+            }
+          }}
+        />
+        <OptionPicker
+          visible={pickerFor === "customUnit"}
+          title="Custom Unit"
+          options={[
+            { label: "Days", value: "day" },
+            { label: "Weeks", value: "week" },
+            { label: "Months", value: "month" },
+            { label: "Years", value: "year" },
+          ]}
+          onClose={() => setPickerFor(null)}
+          onSelect={(opt) => setCustomUnit(opt)}
         />
       </ScrollView>
     </KeyboardAvoidingView>

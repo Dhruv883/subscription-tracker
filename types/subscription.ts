@@ -1,4 +1,9 @@
-export type BillingCycle = "weekly" | "monthly" | "quarterly" | "yearly";
+export type BillingCycle =
+  | "weekly"
+  | "monthly"
+  | "quarterly"
+  | "yearly"
+  | "custom";
 
 export type Subscription = {
   id: string;
@@ -10,6 +15,8 @@ export type Subscription = {
   nextBill?: string;
   isActive?: boolean;
   link?: string;
+  customEvery?: number;
+  customUnit?: "day" | "week" | "month" | "year";
 };
 
 export type SortKey =

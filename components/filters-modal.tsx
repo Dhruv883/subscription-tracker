@@ -96,7 +96,13 @@ export function FiltersModal({
               <Text style={styles.sectionTitle}>Billing cycle</Text>
               <View style={styles.rowWrap}>
                 {(
-                  ["weekly", "monthly", "quarterly", "yearly"] as BillingCycle[]
+                  [
+                    "weekly",
+                    "monthly",
+                    "quarterly",
+                    "yearly",
+                    "custom",
+                  ] as BillingCycle[]
                 ).map((cycle) => (
                   <Chip
                     key={cycle}

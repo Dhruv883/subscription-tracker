@@ -34,6 +34,7 @@ const BILLING_CYCLES: PickerOption[] = [
   { label: "Monthly", value: "monthly" },
   { label: "Quarterly", value: "quarterly" },
   { label: "Yearly", value: "yearly" },
+  { label: "Custom", value: "custom" },
 ];
 
 export default function ManageSubscriptionScreen() {
@@ -59,8 +60,10 @@ export default function ManageSubscriptionScreen() {
   const [isActive, setIsActive] = useState(initial?.isActive !== false);
   const [link, setLink] = useState(initial?.link ?? "");
   const [pickerFor, setPickerFor] = useState<
-    null | "category" | "billingCycle"
+    null | "category" | "billingCycle" | "customUnit"
   >(null);
+  const [customEvery, setCustomEvery] = useState<string>("");
+  const [customUnit, setCustomUnit] = useState<PickerOption | null>(null);
 
   const canSave = useMemo(
     () => name.trim().length > 0 && price.trim().length > 0,
@@ -68,7 +71,7 @@ export default function ManageSubscriptionScreen() {
   );
 
   const onSave = () => {
-    const payload = {
+    const payload: any = {
       id,
       name: name.trim(),
       category: category.value,
@@ -78,6 +81,10 @@ export default function ManageSubscriptionScreen() {
       isActive,
       link: link.trim(),
     };
+    if (billingCycle.value === "custom") {
+      payload.customEvery = parseInt(customEvery, 10);
+      payload.customUnit = customUnit?.value;
+    }
     console.log("Save Subscription ->", payload);
     router.back();
   };
@@ -96,6 +103,21 @@ export default function ManageSubscriptionScreen() {
     setNextBill(initial.nextBill ? formatDate(initial.nextBill) : "");
     setIsActive(initial.isActive !== false);
     setLink(initial.link ?? "");
+    if (initial.billingCycle === "custom") {
+      const anyInit = initial as any;
+      setCustomEvery(anyInit.customEvery ? String(anyInit.customEvery) : "");
+      setCustomUnit(
+        anyInit.customUnit
+          ? {
+              label: String(anyInit.customUnit) + "(s)",
+              value: String(anyInit.customUnit),
+            }
+          : null
+      );
+    } else {
+      setCustomEvery("");
+      setCustomUnit(null);
+    }
   }, [initial]);
 
   return (
@@ -202,6 +224,32 @@ export default function ManageSubscriptionScreen() {
             </View>
           </Pressable>
 
+          {billingCycle.value === "custom" && (
+            <View style={{ flexDirection: "row", gap: 12, marginTop: 8 }}>
+              <View style={[styles.inputContainer, { flex: 1 }]}>
+                <TextInput
+                  value={customEvery}
+                  onChangeText={setCustomEvery}
+                  placeholder="Every"
+                  placeholderTextColor="#9AA0A6"
+                  style={styles.textInput}
+                  keyboardType="number-pad"
+                />
+              </View>
+              <Pressable
+                onPress={() => setPickerFor("customUnit")}
+                style={{ flex: 1 }}
+              >
+                <View style={styles.inputContainer}>
+                  <Text style={styles.valueText}>
+                    {customUnit?.label ?? "Unit"}
+                  </Text>
+                  <Ionicons name="chevron-down" size={18} color="#777" />
+                </View>
+              </Pressable>
+            </View>
+          )}
+
           <Text style={styles.label}>Next Bill</Text>
           <View style={styles.inputContainer}>
             <Ionicons name="calendar-outline" size={16} color="#777" />
@@ -284,6 +332,49 @@ export default function ManageSubscriptionScreen() {
                   ]}
                   onPress={() => {
                     setBillingCycle(o);
+                    setPickerFor(null);
+                    if (o.value !== "custom") {
+                      setCustomEvery("");
+                      setCustomUnit(null);
+                    }
+                  }}
+                >
+                  <Text style={styles.modalItemLabel}>{o.label}</Text>
+                </Pressable>
+              ))}
+            </Pressable>
+          </Pressable>
+        </Modal>
+
+        <Modal
+          animationType="fade"
+          transparent
+          visible={pickerFor === "customUnit"}
+          onRequestClose={() => setPickerFor(null)}
+        >
+          <Pressable
+            style={styles.modalBackdrop}
+            onPress={() => setPickerFor(null)}
+          >
+            <Pressable
+              style={styles.modalCard}
+              onPress={(e) => e.stopPropagation()}
+            >
+              <Text style={styles.modalTitle}>Custom Unit</Text>
+              {[
+                { label: "Days", value: "day" },
+                { label: "Weeks", value: "week" },
+                { label: "Months", value: "month" },
+                { label: "Years", value: "year" },
+              ].map((o) => (
+                <Pressable
+                  key={o.value}
+                  style={({ pressed }) => [
+                    styles.modalItem,
+                    pressed && { backgroundColor: "#F4F4F6" },
+                  ]}
+                  onPress={() => {
+                    setCustomUnit(o);
                     setPickerFor(null);
                   }}
                 >
