@@ -1,7 +1,6 @@
 import { Subscription } from "@/types/subscription";
 
-// Average weeks per month used for weekly -> monthly conversion
-const WEEKS_PER_MONTH = 52 / 12; // ~4.3333
+const WEEKS_PER_MONTH = 52 / 12;
 
 export function monthlyCostOf(sub: Subscription): number {
   const price = sub.price ?? 0;
@@ -36,7 +35,6 @@ export function yearlyCostOf(sub: Subscription): number {
 }
 
 function isActive(sub: Subscription): boolean {
-  // Treat undefined as active by default
   return sub.isActive !== false;
 }
 

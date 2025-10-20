@@ -4,9 +4,6 @@ import { router } from "expo-router";
 import React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-// import { useSheets } from "@/providers/sheets-context";
-
-// No title text needed
 
 const Header = () => {
   const navigation = useNavigation<any>();

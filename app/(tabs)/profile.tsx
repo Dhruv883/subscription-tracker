@@ -7,7 +7,6 @@ export default function Profile() {
   return (
     <SafeAreaView style={styles.safeArea} edges={{ top: "off" }}>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Avatar card */}
         <View style={styles.avatarWrap}>
           <View style={styles.avatarBox}>
             <Image
@@ -22,25 +21,22 @@ export default function Profile() {
           <Text style={styles.email}>ethan.carter@email.com</Text>
         </View>
 
-        {/* Account */}
         <Text style={styles.sectionTitle}>ACCOUNT</Text>
         <View style={styles.card}>
           <Row label="Edit Profile" />
-          <Divider />
+          <View style={styles.divider} />
           <Row label="Change Password" />
         </View>
 
-        {/* Settings */}
         <Text style={styles.sectionTitle}>SETTINGS</Text>
         <View style={styles.card}>
           <Row label="Notifications" />
-          <Divider />
+          <View style={styles.divider} />
           <Row label="Currency" value="USD" />
-          <Divider />
+          <View style={styles.divider} />
           <Row label="Appearance" value="Light" />
         </View>
 
-        {/* Logout */}
         <Pressable style={styles.logoutBtn}>
           <Ionicons name="log-out-outline" size={18} color="#222" />
           <Text style={styles.logoutText}>Logout</Text>
@@ -60,10 +56,6 @@ function Row({ label, value }: { label: string; value?: string }) {
       </View>
     </View>
   );
-}
-
-function Divider() {
-  return <View style={styles.divider} />;
 }
 
 const styles = StyleSheet.create({

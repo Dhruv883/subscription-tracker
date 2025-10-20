@@ -38,7 +38,6 @@ export default function SubscriptionOverview() {
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Rounded header background */}
         <View style={styles.headerBg}>
           <SpendSummary
             monthlyTotal={monthlyTotal}

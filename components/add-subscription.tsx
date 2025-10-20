@@ -150,7 +150,6 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
         <Text style={styles.heading}>Add New Subscription</Text>
         <View style={styles.logoBox}>
           <Image
@@ -161,7 +160,6 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
           />
         </View>
 
-        {/* Name */}
         <FieldLabel>Subscription Name</FieldLabel>
         <InputWrapper>
           <TextInput
@@ -173,7 +171,6 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
           />
         </InputWrapper>
 
-        {/* Link */}
         <FieldLabel>Subscription Link</FieldLabel>
         <InputWrapper>
           <TextInput
@@ -187,7 +184,6 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
           />
         </InputWrapper>
 
-        {/* Category */}
         <FieldLabel>Category</FieldLabel>
         <Pressable onPress={() => setPickerFor("category")}>
           <InputWrapper
@@ -197,7 +193,6 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
           </InputWrapper>
         </Pressable>
 
-        {/* Amount */}
         <FieldLabel>Amount</FieldLabel>
         <InputWrapper left={<Text style={styles.prefix}>$</Text>}>
           <TextInput
@@ -210,7 +205,6 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
           />
         </InputWrapper>
 
-        {/* Row: Billing cycle + Next bill */}
         <View style={styles.row}>
           <View style={{ flex: 1, marginRight: 10 }}>
             <FieldLabel>Billing Cycle</FieldLabel>
@@ -241,7 +235,6 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
           </View>
         </View>
 
-        {/* Submit */}
         <Pressable
           style={({ pressed }) => [
             styles.submitButton,
@@ -254,7 +247,6 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
           <Text style={styles.submitText}>Add Subscription</Text>
         </Pressable>
 
-        {/* Pickers */}
         <OptionPicker
           visible={pickerFor === "category"}
           title="Select Category"

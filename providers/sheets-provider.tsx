@@ -30,7 +30,6 @@ export function SheetsProvider({ children }: { children: React.ReactNode }) {
     <SheetsContext.Provider value={{ openAddSheet, openSubscriptionSheet }}>
       {children}
 
-      {/* Add Sheet */}
       <BottomSheet
         ref={addSheetRef}
         index={-1}

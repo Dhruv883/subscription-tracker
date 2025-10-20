@@ -82,7 +82,6 @@ export default function ManageSubscriptionScreen() {
     router.back();
   };
 
-  // keep state in sync if initial changes (e.g., navigating between ids)
   useEffect(() => {
     if (!initial) return;
     setName(initial.name ?? "");
@@ -116,7 +115,6 @@ export default function ManageSubscriptionScreen() {
           keyboardDismissMode="interactive"
           showsVerticalScrollIndicator={false}
         >
-          {/* Status */}
           <Text style={styles.label}>Status</Text>
           <View style={styles.segmentContainer}>
             <Pressable
@@ -150,7 +148,6 @@ export default function ManageSubscriptionScreen() {
             </Pressable>
           </View>
 
-          {/* Name */}
           <Text style={styles.label}>Name</Text>
           <View style={styles.inputContainer}>
             <TextInput

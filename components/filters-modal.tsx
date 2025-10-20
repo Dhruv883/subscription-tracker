@@ -47,7 +47,6 @@ export function FiltersModal({
         <Pressable style={styles.backdrop} onPress={onRequestClose} />
 
         <View style={styles.sheet}>
-          {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Filters</Text>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -61,7 +60,6 @@ export function FiltersModal({
           </View>
 
           <ScrollView contentContainerStyle={styles.content}>
-            {/* Status */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Status</Text>
               <View style={styles.rowWrap}>
@@ -78,7 +76,6 @@ export function FiltersModal({
 
             <View style={styles.divider} />
 
-            {/* Categories */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Categories</Text>
               <View style={styles.rowWrap}>
@@ -95,7 +92,6 @@ export function FiltersModal({
 
             <View style={styles.divider} />
 
-            {/* Billing cycle */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Billing cycle</Text>
               <View style={styles.rowWrap}>

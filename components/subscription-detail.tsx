@@ -48,7 +48,6 @@ const SubscriptionDetailsCard = ({
     <View style={styles.wrapper}>
       <View style={styles.content}>
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-          {/* Header */}
           <View style={styles.headerRow}>
             <Image source={{ uri: logo }} style={styles.icon} />
             <View style={styles.headerText}>
