@@ -4,6 +4,7 @@ import SubscriptionDetailsCard, {
 } from "@/components/subscription-detail";
 import { SheetsContext } from "@/providers/sheets-context";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import { router } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 
 export function SheetsProvider({ children }: { children: React.ReactNode }) {
@@ -45,7 +46,18 @@ export function SheetsProvider({ children }: { children: React.ReactNode }) {
 
       <BottomSheet ref={subscriptionSheetRef} index={-1} enablePanDownToClose>
         <BottomSheetView>
-          <SubscriptionDetailsCard {...(subscriptionPayload || {})} />
+          <SubscriptionDetailsCard
+            {...(subscriptionPayload || {})}
+            onManage={() => {
+              subscriptionSheetRef.current?.close();
+              const id = subscriptionPayload?.id;
+              if (id)
+                router.push({
+                  pathname: "/manage/[id]",
+                  params: { id },
+                });
+            }}
+          />
         </BottomSheetView>
       </BottomSheet>
     </SheetsContext.Provider>

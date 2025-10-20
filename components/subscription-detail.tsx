@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 export type SubscriptionDetailsProps = {
+  id?: string;
   logo?: string;
   name?: string;
   isActive?: boolean;

@@ -11,6 +11,7 @@ export const MOCK_SUBSCRIPTIONS: Subscription[] = [
     billingCycle: "monthly",
     nextBill: addDaysIso(28),
     isActive: true,
+    link: "https://chat.openai.com/",
   },
   {
     id: "netflix",
@@ -21,6 +22,7 @@ export const MOCK_SUBSCRIPTIONS: Subscription[] = [
     billingCycle: "monthly",
     nextBill: sampleDate(7),
     isActive: true,
+    link: "https://www.netflix.com",
   },
   {
     id: "spotify",
@@ -31,6 +33,7 @@ export const MOCK_SUBSCRIPTIONS: Subscription[] = [
     billingCycle: "monthly",
     nextBill: sampleDate(14),
     isActive: true,
+    link: "https://www.spotify.com/",
   },
   {
     id: "youtube-premium",
@@ -41,6 +44,7 @@ export const MOCK_SUBSCRIPTIONS: Subscription[] = [
     billingCycle: "monthly",
     nextBill: sampleDate(21),
     isActive: true,
+    link: "https://www.youtube.com/",
   },
   {
     id: "prime",
@@ -50,6 +54,7 @@ export const MOCK_SUBSCRIPTIONS: Subscription[] = [
     price: 130,
     billingCycle: "yearly",
     isActive: false,
+    link: "https://www.amazon.com/",
   },
   {
     id: "gpt2",
@@ -60,6 +65,7 @@ export const MOCK_SUBSCRIPTIONS: Subscription[] = [
     billingCycle: "monthly",
     nextBill: addDaysIso(28),
     isActive: false,
+    link: "https://chat.openai.com/",
   },
   {
     id: "netflix2",
@@ -70,6 +76,7 @@ export const MOCK_SUBSCRIPTIONS: Subscription[] = [
     billingCycle: "monthly",
     nextBill: sampleDate(7),
     isActive: false,
+    link: "https://www.netflix.com",
   },
 ];
 

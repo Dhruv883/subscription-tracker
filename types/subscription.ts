@@ -9,6 +9,7 @@ export type Subscription = {
   billingCycle: BillingCycle;
   nextBill?: string;
   isActive?: boolean;
+  link?: string;
 };
 
 export type SortKey =

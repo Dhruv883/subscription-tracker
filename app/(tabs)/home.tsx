@@ -22,6 +22,7 @@ export default function SubscriptionOverview() {
 
   const handleCardPress = (sub: Subscription) => {
     openSubscriptionSheet({
+      id: sub.id,
       logo: sub.logo,
       name: sub.name,
       isActive: sub.isActive !== false,

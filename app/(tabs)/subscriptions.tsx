@@ -101,6 +101,7 @@ export default function SubscriptionsScreen() {
 
   const handleOpenDetails = (s: Subscription) => {
     openSubscriptionSheet({
+      id: s.id,
       logo: s.logo,
       name: s.name,
       isActive: s.isActive !== false,
