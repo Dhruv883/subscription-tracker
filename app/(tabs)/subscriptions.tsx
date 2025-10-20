@@ -63,6 +63,8 @@ export default function SubscriptionsScreen() {
       switch (sortKey) {
         case "name-asc":
           return a.name.localeCompare(b.name);
+        case "name-desc":
+          return b.name.localeCompare(a.name);
         case "price-asc":
           return a.price - b.price;
         case "price-desc":

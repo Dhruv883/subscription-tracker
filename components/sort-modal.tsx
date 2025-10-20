@@ -29,6 +29,7 @@ export function SortModal({
     "price-asc",
     "price-desc",
     "name-asc",
+    "name-desc",
   ];
   return (
     <Modal

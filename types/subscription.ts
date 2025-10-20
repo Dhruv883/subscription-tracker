@@ -16,10 +16,12 @@ export type SortKey =
   | "price-asc"
   | "price-desc"
   | "nextbill-asc"
-  | "nextbill-desc";
+  | "nextbill-desc"
+  | "name-desc";
 
 export const SORT_LABELS: Record<SortKey, string> = {
   "name-asc": "Name (A-Z)",
+  "name-desc": "Name (Z-A)",
   "price-asc": "Price (Low to High)",
   "price-desc": "Price (High to Low)",
   "nextbill-asc": "Next Bill (Soonest)",
