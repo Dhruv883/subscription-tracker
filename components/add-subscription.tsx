@@ -1,3 +1,5 @@
+import { useSubscriptions } from "@/providers/subscriptions-context";
+import { normalizeToISODate } from "@/utils/date";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useMemo, useState } from "react";
 import {
@@ -106,6 +108,7 @@ type AddSubscriptionFormProps = {
 };
 
 const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
+  const { addSubscription } = useSubscriptions();
   const [name, setName] = useState("");
   const [link, setLink] = useState("");
   const [category, setCategory] = useState<PickerOption>(CATEGORIES[0]);
@@ -128,20 +131,43 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
     return !!n && n > 0 && !!customUnit;
   }, [name, amount, billingCycle, customEvery, customUnit]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    const normalizedDate = nextBill.trim()
+      ? normalizeToISODate(nextBill.trim())
+      : null;
+    if (nextBill.trim() && !normalizedDate) {
+      alert(
+        "Invalid date. Please use dd-mm-yyyy (e.g., 21-10-2025) or yyyy-mm-dd."
+      );
+      return;
+    }
+
     const payload: any = {
       name: name.trim(),
       link: link.trim(),
       category: category.value,
-      amount: amount.trim(),
-      billingCycle: billingCycle.value,
-      nextBill: nextBill.trim(),
+      price: parseFloat(amount),
+      billing_cycle: billingCycle.value,
+      next_bill: normalizedDate,
     };
     if (billingCycle.value === "custom") {
-      payload.customEvery = parseInt(customEvery, 10);
-      payload.customUnit = customUnit?.value;
+      payload.custom_billing_period = parseInt(customEvery, 10);
+      payload.custom_billing_unit = customUnit?.value;
     }
-    console.log("Add Subscription ->", payload);
+    const result = await addSubscription(payload);
+    if (!result.ok) {
+      alert("Failed to add subscription: " + (result.error || "Unknown error"));
+      return;
+    }
+    alert("Subscription added!");
+    setName("");
+    setLink("");
+    setCategory(CATEGORIES[0]);
+    setAmount("");
+    setBillingCycle(BILLING_CYCLES[1]);
+    setNextBill("");
+    setCustomEvery("");
+    setCustomUnit(null);
   };
 
   return (

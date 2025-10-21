@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: "900",
     marginTop: 6,
-    color: "#7B61FF",
+    color: "#5A67CE",
     letterSpacing: 0.25,
   },
   dotsContainer: {
@@ -90,6 +90,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
   },
   dotActive: {
-    backgroundColor: "#7B61FF",
+    backgroundColor: "#5A67CE",
   },
 });

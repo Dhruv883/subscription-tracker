@@ -1,8 +1,8 @@
 import { FiltersModal } from "@/components/filters-modal";
 import { SortModal } from "@/components/sort-modal";
 import SubscriptionCard from "@/components/subscription-card";
-import { MOCK_SUBSCRIPTIONS } from "@/data/subscriptions";
 import { useSheets } from "@/providers/sheets-context";
+import { useSubscriptions } from "@/providers/subscriptions-context";
 import { BillingCycle, SortKey } from "@/types/subscription";
 import { formatDate } from "@/utils/date";
 import { capitalize } from "@/utils/string";
@@ -41,17 +41,18 @@ export default function SubscriptionsScreen() {
   });
   const [status, setStatus] = useState<"all" | "active" | "cancelled">("all");
 
+  const { subscriptions } = useSubscriptions();
   const categories = useMemo(() => {
-    const set = new Set(MOCK_SUBSCRIPTIONS.map((d) => d.category));
+    const set = new Set(subscriptions.map((d) => d.category));
     return Array.from(set);
-  }, []);
+  }, [subscriptions]);
 
   const filteredSorted = useMemo(() => {
     const q = query.trim().toLowerCase();
     const hasCategoryFilter = Object.values(selectedCategories).some(Boolean);
     const hasCycleFilter = Object.values(selectedCycles).some(Boolean);
 
-    let arr = MOCK_SUBSCRIPTIONS.filter((d) => {
+    let arr = subscriptions.filter((d) => {
       if (q && !d.name.toLowerCase().includes(q)) return false;
       if (status !== "all") {
         const isActive = d.isActive !== false;
@@ -85,7 +86,14 @@ export default function SubscriptionsScreen() {
     });
 
     return arr;
-  }, [query, status, selectedCategories, selectedCycles, sortKey]);
+  }, [
+    subscriptions,
+    query,
+    status,
+    selectedCategories,
+    selectedCycles,
+    sortKey,
+  ]);
 
   const toggleCategory = (name: string) => {
     setSelectedCategories((prev) => ({ ...prev, [name]: !prev[name] }));
@@ -117,7 +125,7 @@ export default function SubscriptionsScreen() {
         : capitalize(s.billingCycle);
     openSubscriptionSheet({
       id: s.id,
-      logo: s.logo,
+      link: s.link,
       name: s.name,
       isActive: s.isActive !== false,
       amount: `$${s.price.toFixed(2)}`,
@@ -174,7 +182,7 @@ export default function SubscriptionsScreen() {
               <View key={sub.id}>
                 <SubscriptionCard
                   id={sub.id}
-                  logo={sub.logo}
+                  link={sub.link}
                   name={sub.name}
                   category={sub.category}
                   price={sub.price}

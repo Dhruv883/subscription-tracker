@@ -1,10 +1,7 @@
 import SpendSummary from "@/components/spend-summary";
 import SubscriptionCard from "@/components/subscription-card";
-import {
-  MOCK_SUBSCRIPTIONS,
-  MOCK_SUBSCRIPTIONS_BY_DATE,
-} from "@/data/subscriptions";
 import { useSheets } from "@/providers/sheets-context";
+import { useSubscriptions } from "@/providers/subscriptions-context";
 import { Subscription } from "@/types/subscription";
 import { formatDate } from "@/utils/date";
 import { computeMonthlyTotal, computeYearlyTotal } from "@/utils/spend";
@@ -14,11 +11,31 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function SubscriptionOverview() {
   const { openSubscriptionSheet } = useSheets();
+  const { subscriptions, loading } = useSubscriptions();
+
   const monthlyTotal = useMemo(
-    () => computeMonthlyTotal(MOCK_SUBSCRIPTIONS),
-    []
+    () => computeMonthlyTotal(subscriptions),
+    [subscriptions]
   );
-  const yearlyTotal = useMemo(() => computeYearlyTotal(MOCK_SUBSCRIPTIONS), []);
+  const yearlyTotal = useMemo(
+    () => computeYearlyTotal(subscriptions),
+    [subscriptions]
+  );
+
+  const groupByDate = (subs: Subscription[]) => {
+    // Example: group by nextBill date (format as string)
+    return subs.reduce((acc, sub) => {
+      const date = sub.nextBill ? formatDate(sub.nextBill) : "No Date";
+      if (!acc[date]) acc[date] = [];
+      acc[date].push(sub);
+      return acc;
+    }, {} as Record<string, Subscription[]>);
+  };
+
+  const subscriptionsByDate = useMemo(
+    () => groupByDate(subscriptions),
+    [subscriptions]
+  );
 
   const handleCardPress = (sub: Subscription) => {
     const cycleLabel =
@@ -31,7 +48,7 @@ export default function SubscriptionOverview() {
         : capitalize(sub.billingCycle);
     openSubscriptionSheet({
       id: sub.id,
-      logo: sub.logo,
+      link: sub.link,
       name: sub.name,
       isActive: sub.isActive !== false,
       amount: `$${sub.price.toFixed(2)}`,
@@ -42,6 +59,14 @@ export default function SubscriptionOverview() {
       lastPayment: "—",
     });
   };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Loading subscriptions...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -55,14 +80,14 @@ export default function SubscriptionOverview() {
         </View>
 
         <View style={styles.sheet}>
-          {Object.entries(MOCK_SUBSCRIPTIONS_BY_DATE).map(([date, subs]) => (
+          {Object.entries(subscriptionsByDate).map(([date, subs]) => (
             <View key={date}>
               <Text style={styles.dateHeader}>{date}</Text>
               {subs.map((sub, idx) => (
                 <SubscriptionCard
                   id={sub.id}
                   key={sub.name + idx}
-                  logo={sub.logo}
+                  link={sub.link}
                   name={sub.name}
                   category={sub.category}
                   price={sub.price}

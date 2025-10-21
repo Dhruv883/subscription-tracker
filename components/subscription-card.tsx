@@ -3,7 +3,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface SubscriptionCardProps {
   id: string;
-  logo?: string;
+  link?: string;
   name: string;
   category: string;
   price: number;
@@ -14,7 +14,7 @@ interface SubscriptionCardProps {
 }
 
 const SubscriptionCard = ({
-  logo,
+  link,
   name,
   category,
   price,
@@ -34,8 +34,13 @@ const SubscriptionCard = ({
     <TouchableOpacity onPress={handlePress} activeOpacity={1}>
       <View style={[styles.card, !isActive && { opacity: 0.75 }]}>
         <View style={styles.row}>
-          {logo ? (
-            <Image source={{ uri: logo }} style={styles.logo} />
+          {link ? (
+            <Image
+              source={{
+                uri: `https://img.logo.dev/${link}?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true`,
+              }}
+              style={styles.logo}
+            />
           ) : (
             <View style={styles.logoPlaceholder}>
               <Text style={styles.logoLetter}>

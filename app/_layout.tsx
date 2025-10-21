@@ -1,3 +1,4 @@
+import { SubscriptionsProvider } from "@/providers/subscriptions-context";
 import { Slot } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
@@ -7,7 +8,9 @@ export default function RootLayout() {
   SystemUI.setBackgroundColorAsync("#111111");
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Slot />
+      <SubscriptionsProvider>
+        <Slot />
+      </SubscriptionsProvider>
       <StatusBar style="light" backgroundColor="#111111" />
     </GestureHandlerRootView>
   );

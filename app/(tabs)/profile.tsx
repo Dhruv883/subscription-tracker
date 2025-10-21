@@ -1,5 +1,7 @@
+import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -37,7 +39,16 @@ export default function Profile() {
           <Row label="Appearance" value="Light" />
         </View>
 
-        <Pressable style={styles.logoutBtn}>
+        <Pressable
+          style={styles.logoutBtn}
+          onPress={async () => {
+            try {
+              await supabase.auth.signOut();
+            } finally {
+              router.replace("/welcome");
+            }
+          }}
+        >
           <Ionicons name="log-out-outline" size={18} color="#222" />
           <Text style={styles.logoutText}>Logout</Text>
         </Pressable>

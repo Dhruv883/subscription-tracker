@@ -11,7 +11,7 @@ import {
 
 export type SubscriptionDetailsProps = {
   id?: string;
-  logo?: string;
+  link?: string;
   name?: string;
   isActive?: boolean;
   amount?: string | number;
@@ -25,15 +25,15 @@ export type SubscriptionDetailsProps = {
 };
 
 const SubscriptionDetailsCard = ({
-  logo = "https://img.logo.dev/netflix.com?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true",
-  name = "Netflix",
-  isActive = true,
-  amount = "$15.99",
-  nextBilling = "Jul 15, 2024",
-  category = "Streaming",
-  billingCycle = "Monthly",
-  signupDate = "Jan 15, 2023",
-  lastPayment = "Jun 15, 2024",
+  link,
+  name,
+  isActive,
+  amount,
+  nextBilling,
+  category,
+  billingCycle,
+  signupDate,
+  lastPayment,
   onManage,
   onDelete,
 }: SubscriptionDetailsProps) => {
@@ -49,7 +49,12 @@ const SubscriptionDetailsCard = ({
       <View style={styles.content}>
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={styles.headerRow}>
-            <Image source={{ uri: logo }} style={styles.icon} />
+            <Image
+              source={{
+                uri: `https://img.logo.dev/${link}?token=pk_N1hKCmmaSMGBeIHjP8e4Hg&retina=true`,
+              }}
+              style={styles.icon}
+            />
             <View style={styles.headerText}>
               <Text style={styles.title}>{name}</Text>
               <View style={styles.statusPill}>
