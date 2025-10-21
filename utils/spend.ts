@@ -8,7 +8,7 @@ function resolveCustomMonthlyCost(sub: Subscription): number {
   const price = sub.price ?? 0;
   const n = sub.customEvery && sub.customEvery > 0 ? sub.customEvery : 0;
   const unit = sub.customUnit;
-  if (!n || !unit) return price; // fallback
+  if (!n || !unit) return price;
   switch (unit) {
     case "week":
       return price * (WEEKS_PER_MONTH / n);
@@ -27,7 +27,7 @@ function resolveCustomYearlyCost(sub: Subscription): number {
   const price = sub.price ?? 0;
   const n = sub.customEvery && sub.customEvery > 0 ? sub.customEvery : 0;
   const unit = sub.customUnit;
-  if (!n || !unit) return price; // fallback
+  if (!n || !unit) return price;
   switch (unit) {
     case "week":
       return price * (52 / n);
@@ -98,4 +98,14 @@ export function computeYearlyTotal(subs: Subscription[]): number {
 
 export function roundCurrency(n: number): number {
   return Math.round(n * 100) / 100;
+}
+
+export function computeMonthlyTotalByOccurrences(
+  occurrences: { sub: Subscription }[]
+): number {
+  const total = occurrences
+    .map((o) => o.sub)
+    .filter(isActive)
+    .reduce((sum, s) => sum + (s.price ?? 0), 0);
+  return roundCurrency(total);
 }

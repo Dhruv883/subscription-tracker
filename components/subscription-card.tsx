@@ -18,7 +18,6 @@ const SubscriptionCard = ({
   name,
   category,
   price,
-  date,
   billingCycle,
   id,
   onPress,
@@ -50,11 +49,15 @@ const SubscriptionCard = ({
           )}
           <View style={{ flex: 1 }}>
             <Text style={styles.name}>{name}</Text>
-            <Text style={styles.category}>{date ? date : category}</Text>
+            <Text style={styles.category}>
+              {category.charAt(0).toUpperCase() + category.slice(1)}
+            </Text>
           </View>
           <View style={styles.rightCol}>
-            <Text style={styles.price}>${price.toFixed(2)}</Text>
-            <View style={styles.pill}>
+            <Text style={styles.price} numberOfLines={1} ellipsizeMode="tail">
+              ${price.toFixed(2)}
+            </Text>
+            <View>
               <Text style={styles.pillText}>{billingCycle}</Text>
             </View>
           </View>
@@ -125,7 +128,9 @@ const styles = StyleSheet.create({
     color: "#1a1a1a",
   },
   rightCol: {
-    width: 80,
+    width: 120,
+    overflow: "hidden",
+    wordWrap: "no-wrap",
     justifyContent: "center",
     alignItems: "flex-end",
     gap: 6,

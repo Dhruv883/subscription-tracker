@@ -270,8 +270,16 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
           </View>
         </View>
 
-        {billingCycle.value === "custom" && (
-          <View style={[styles.row, { marginTop: 12 }]}>
+        <View
+          style={[
+            { marginTop: 12 },
+            billingCycle.value === "custom"
+              ? styles.collapsibleVisible
+              : styles.collapsibleHidden,
+          ]}
+          pointerEvents={billingCycle.value === "custom" ? "auto" : "none"}
+        >
+          <View style={styles.row}>
             <View style={{ flex: 1, marginRight: 10 }}>
               <FieldLabel>Every</FieldLabel>
               <InputWrapper>
@@ -300,7 +308,7 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
               </Pressable>
             </View>
           </View>
-        )}
+        </View>
 
         <Pressable
           style={({ pressed }) => [
@@ -473,6 +481,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#222",
     fontWeight: "600",
+  },
+  collapsibleHidden: {
+    height: 0,
+    opacity: 0,
+    overflow: "hidden",
+  },
+  collapsibleVisible: {
+    opacity: 1,
   },
 });
 

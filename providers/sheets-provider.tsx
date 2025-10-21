@@ -3,9 +3,13 @@ import SubscriptionDetailsCard, {
   SubscriptionDetailsProps,
 } from "@/components/subscription-detail";
 import { SheetsContext } from "@/providers/sheets-context";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, {
+  BottomSheetScrollView,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
 import { useCallback, useRef, useState } from "react";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
 export function SheetsProvider({ children }: { children: React.ReactNode }) {
   const addSheetRef = useRef<BottomSheet>(null);
@@ -33,14 +37,19 @@ export function SheetsProvider({ children }: { children: React.ReactNode }) {
       <BottomSheet
         ref={addSheetRef}
         index={-1}
-        style={{ flex: 1 }}
+        enablePanDownToClose
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
-        enablePanDownToClose
       >
-        <BottomSheetView>
-          <AddSubscriptionForm keyboardOffset={64} />
-        </BottomSheetView>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={64}
+          style={{ flex: 1 }}
+        >
+          <BottomSheetScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+            <AddSubscriptionForm />
+          </BottomSheetScrollView>
+        </KeyboardAvoidingView>
       </BottomSheet>
 
       <BottomSheet ref={subscriptionSheetRef} index={-1} enablePanDownToClose>
