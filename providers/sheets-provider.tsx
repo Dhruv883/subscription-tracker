@@ -3,6 +3,7 @@ import SubscriptionDetailsCard, {
   SubscriptionDetailsProps,
 } from "@/components/subscription-detail";
 import { SheetsContext } from "@/providers/sheets-context";
+import { useSubscriptions } from "@/providers/subscriptions-context";
 import BottomSheet, {
   BottomSheetScrollView,
   BottomSheetView,
@@ -17,6 +18,7 @@ export function SheetsProvider({ children }: { children: React.ReactNode }) {
   const [subscriptionPayload, setSubscriptionPayload] = useState<
     Partial<SubscriptionDetailsProps> | undefined
   >();
+  const { deleteSubscription } = useSubscriptions();
 
   const openAddSheet = useCallback(() => {
     addSheetRef.current?.expand();
@@ -29,6 +31,12 @@ export function SheetsProvider({ children }: { children: React.ReactNode }) {
     },
     []
   );
+
+  const handleDelete = useCallback(async () => {
+    if (!subscriptionPayload?.id) return;
+    await deleteSubscription(subscriptionPayload.id);
+    subscriptionSheetRef.current?.close();
+  }, [subscriptionPayload?.id, deleteSubscription]);
 
   return (
     <SheetsContext.Provider value={{ openAddSheet, openSubscriptionSheet }}>
@@ -56,6 +64,7 @@ export function SheetsProvider({ children }: { children: React.ReactNode }) {
         <BottomSheetView>
           <SubscriptionDetailsCard
             {...(subscriptionPayload || {})}
+            id={subscriptionPayload?.id || ""}
             onManage={() => {
               subscriptionSheetRef.current?.close();
               const id = subscriptionPayload?.id;
@@ -65,6 +74,7 @@ export function SheetsProvider({ children }: { children: React.ReactNode }) {
                   params: { id },
                 });
             }}
+            onDelete={handleDelete}
           />
         </BottomSheetView>
       </BottomSheet>

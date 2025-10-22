@@ -26,6 +26,7 @@ const CATEGORIES: PickerOption[] = [
   { label: "Education", value: "education" },
 ];
 
+// TODO: Add One Time Purchase option
 const BILLING_CYCLES: PickerOption[] = [
   { label: "Weekly", value: "weekly" },
   { label: "Monthly", value: "monthly" },
@@ -258,6 +259,7 @@ const AddSubscriptionForm = ({ keyboardOffset }: AddSubscriptionFormProps) => {
                 <Ionicons name="calendar-outline" size={18} color="#777" />
               }
             >
+              {/* // TODO: Use DateTime Picker */}
               <TextInput
                 value={nextBill}
                 onChangeText={setNextBill}

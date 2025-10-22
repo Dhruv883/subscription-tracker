@@ -1,3 +1,4 @@
+import { capitalize } from "@/utils/string";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -48,10 +49,8 @@ const SubscriptionCard = ({
             </View>
           )}
           <View style={{ flex: 1 }}>
-            <Text style={styles.name}>{name}</Text>
-            <Text style={styles.category}>
-              {category.charAt(0).toUpperCase() + category.slice(1)}
-            </Text>
+            <Text style={styles.name}>{capitalize(name)}</Text>
+            <Text style={styles.category}>{capitalize(category)}</Text>
           </View>
           <View style={styles.rightCol}>
             <Text style={styles.price} numberOfLines={1} ellipsizeMode="tail">

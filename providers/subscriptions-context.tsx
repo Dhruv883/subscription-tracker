@@ -24,6 +24,7 @@ type SubscriptionsContextValue = {
     custom_billing_period?: number | null;
     custom_billing_unit?: string | null;
   }) => Promise<{ ok: boolean; error?: string }>;
+  deleteSubscription: (id: string) => Promise<{ ok: boolean; error?: string }>;
 };
 
 const SubscriptionsContext = createContext<SubscriptionsContextValue>({
@@ -31,6 +32,7 @@ const SubscriptionsContext = createContext<SubscriptionsContextValue>({
   loading: false,
   refresh: async () => {},
   addSubscription: async () => ({ ok: false, error: "Not initialized" }),
+  deleteSubscription: async () => ({ ok: false, error: "Not initialized" }),
 });
 
 export function SubscriptionsProvider({
@@ -121,9 +123,50 @@ export function SubscriptionsProvider({
       [refresh]
     );
 
+  const deleteSubscription: SubscriptionsContextValue["deleteSubscription"] =
+    useCallback(
+      async (id) => {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session?.user?.id) {
+          return { ok: false, error: "No user session" };
+        }
+
+        const { error } = await supabase
+          .from("subscriptions")
+          .delete()
+          .eq("id", id)
+          .eq("user_id", session.user.id);
+
+        if (error) {
+          return { ok: false, error: error.message };
+        }
+
+        await refresh();
+        return { ok: true };
+      },
+      [refresh]
+    );
+
   const value = useMemo<SubscriptionsContextValue>(
-    () => ({ subscriptions, loading, error, refresh, addSubscription }),
-    [subscriptions, loading, error, refresh, addSubscription]
+    () => ({
+      subscriptions,
+      loading,
+      error,
+      refresh,
+      addSubscription,
+      deleteSubscription,
+    }),
+    [
+      subscriptions,
+      loading,
+      error,
+      refresh,
+      addSubscription,
+      deleteSubscription,
+    ]
   );
 
   return (

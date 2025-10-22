@@ -4,106 +4,86 @@ import SubscriptionCard from "@/components/subscription-card";
 import { useSheets } from "@/providers/sheets-context";
 import { useSubscriptions } from "@/providers/subscriptions-context";
 import { Subscription } from "@/types/subscription";
-import { formatDate, getOccurrencesInMonth } from "@/utils/date";
+import { formatDate } from "@/utils/date";
 import {
   computeMonthlyTotalByOccurrences,
   computeYearlyTotal,
 } from "@/utils/spend";
-import { capitalize } from "@/utils/string";
+import {
+  getSubscriptionCycleLabel,
+  getSubscriptionsForMonth,
+  groupSubscriptionsByDate,
+} from "@/utils/subscriptions";
 import React, { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+
+interface SubscriptionListSectionProps {
+  title: string;
+  byDate: Record<string, Subscription[]>;
+  formatDayKey: (key: string) => string;
+  handleCardPress: (sub: Subscription) => void;
+  sectionKeyPrefix: string;
+}
 
 export default function SubscriptionOverview() {
   const { openSubscriptionSheet } = useSheets();
   const { subscriptions, loading } = useSubscriptions();
 
-  // Month selection: current month + next 12 months
-  const [selectedOffset, setSelectedOffset] = useState<number>(0); // 0 = current, 1 = next, ... up to 12
-  const now = useMemo(() => new Date(), []);
-  const { selYear, selMonthIndex } = useMemo(() => {
-    const y = now.getFullYear();
-    const m = now.getMonth();
-    const totalMonths = m + selectedOffset;
-    const selYear = y + Math.floor(totalMonths / 12);
-    const selMonthIndex = totalMonths % 12;
-    return { selYear, selMonthIndex };
-  }, [now, selectedOffset]);
-  const startOfToday = useMemo(() => {
-    const d = new Date();
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const [monthOffset, setMonthOffset] = useState<number>(0);
+  const currentDate = useMemo(() => new Date(), []);
+
+  const { selectedYear, selectedMonthIndex } = useMemo(() => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const totalMonths = month + monthOffset;
+    const selectedYear = year + Math.floor(totalMonths / 12);
+    const selectedMonthIndex = totalMonths % 12;
+    return { selectedYear, selectedMonthIndex };
+  }, [currentDate, monthOffset]);
+
+  const today = useMemo(() => {
+    const date = new Date();
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   }, []);
 
-  // Build list of subscriptions that have occurrences within the selected month
-  const selectedMonthSubs = useMemo(() => {
-    const results: { sub: Subscription; occurrence: Date }[] = [];
-    for (const s of subscriptions) {
-      if (!s.nextBill || s.isActive === false) continue;
-      const occs = getOccurrencesInMonth({
-        anchorIso: s.nextBill,
-        billingCycle: s.billingCycle,
-        customEvery: s.customEvery,
-        customUnit: s.customUnit,
-        year: selYear,
-        monthIndex: selMonthIndex,
-      });
-      for (const occ of occs) results.push({ sub: s, occurrence: occ });
-    }
-    return results;
-  }, [subscriptions, selYear, selMonthIndex]);
+  const subscriptionsForSelectedMonth = useMemo(
+    () =>
+      getSubscriptionsForMonth(subscriptions, selectedYear, selectedMonthIndex),
+    [subscriptions, selectedYear, selectedMonthIndex]
+  );
 
   const monthlyTotal = useMemo(
-    () => computeMonthlyTotalByOccurrences(selectedMonthSubs),
-    [selectedMonthSubs]
+    () => computeMonthlyTotalByOccurrences(subscriptionsForSelectedMonth),
+    [subscriptionsForSelectedMonth]
   );
   const yearlyTotal = useMemo(
-    () => computeYearlyTotal(selectedMonthSubs.map((r) => r.sub)),
-    [selectedMonthSubs]
+    () => computeYearlyTotal(subscriptionsForSelectedMonth.map((r) => r.sub)),
+    [subscriptionsForSelectedMonth]
   );
 
-  const { previousByDate, upcomingByDate } = useMemo(() => {
-    const previousByDate: Record<string, Subscription[]> = {};
-    const upcomingByDate: Record<string, Subscription[]> = {};
-    for (const { sub: s, occurrence } of selectedMonthSubs) {
-      const dt = occurrence;
-      if (isNaN(dt.getTime())) continue;
-      const y = dt.getFullYear();
-      const m = String(dt.getMonth() + 1).padStart(2, "0");
-      const d = String(dt.getDate()).padStart(2, "0");
-      const key = `${y}-${m}-${d}`;
-      if (dt < startOfToday) {
-        if (!previousByDate[key]) previousByDate[key] = [];
-        previousByDate[key].push(s);
-      } else {
-        if (!upcomingByDate[key]) upcomingByDate[key] = [];
-        upcomingByDate[key].push(s);
-      }
-    }
-    return { previousByDate, upcomingByDate };
-  }, [selectedMonthSubs, startOfToday]);
+  const { previousSubscriptionsByDate, upcomingSubscriptionsByDate } = useMemo(
+    () => groupSubscriptionsByDate(subscriptionsForSelectedMonth, today),
+    [subscriptionsForSelectedMonth, today]
+  );
 
-  const formatDayKey = (key: string) => {
-    const [y, m, d] = key.split("-").map((n) => parseInt(n, 10));
-    const dt = new Date(y, (m || 1) - 1, d || 1);
-    return formatDate(dt.toISOString());
+  const formatDateKey = (key: string) => {
+    const [year, month, day] = key.split("-").map((n) => parseInt(n, 10));
+    const date = new Date(year, (month || 1) - 1, day || 1);
+    return formatDate(date.toISOString());
   };
 
-  const handleCardPress = (sub: Subscription) => {
-    const cycleLabel =
-      (sub as any).billingCycle === "custom" &&
-      (sub as any).customEvery &&
-      (sub as any).customUnit
-        ? `${(sub as any).customEvery} ${(sub as any).customUnit}${
-            (sub as any).customEvery > 1 ? "s" : ""
-          }`
-        : capitalize(sub.billingCycle);
+  const handleSubscriptionCardPress = (subscription: Subscription) => {
+    const cycleLabel = getSubscriptionCycleLabel(subscription);
     openSubscriptionSheet({
-      id: sub.id,
-      link: sub.link,
-      name: sub.name,
-      isActive: sub.isActive !== false,
-      amount: `$${sub.price.toFixed(2)}`,
-      nextBilling: sub.nextBill ? formatDate(sub.nextBill) : "—",
-      category: sub.category,
+      id: subscription.id,
+      link: subscription.link,
+      name: subscription.name,
+      isActive: subscription.isActive,
+      amount: `$${subscription.price.toFixed(2)}`,
+      nextBilling: subscription.nextBill
+        ? formatDate(subscription.nextBill)
+        : "—",
+      category: subscription.category,
       billingCycle: cycleLabel,
       signupDate: "—",
       lastPayment: "—",
@@ -132,91 +112,37 @@ export default function SubscriptionOverview() {
             monthLabel={new Intl.DateTimeFormat("en-US", {
               month: "long",
               year: "numeric",
-            }).format(new Date(selYear, selMonthIndex, 1))}
+            }).format(new Date(selectedYear, selectedMonthIndex, 1))}
             paddingHorizontal={20}
           />
           <MonthPicker
-            baseDate={now}
-            offset={selectedOffset}
-            onChange={setSelectedOffset}
+            baseDate={currentDate}
+            offset={monthOffset}
+            onChange={setMonthOffset}
             minOffset={0}
             maxOffset={12}
           />
         </View>
 
         <View style={styles.sheet}>
-          {Object.keys(upcomingByDate).length > 0 && (
-            <View style={{ marginTop: 8 }}>
-              <Text style={styles.sectionHeader}>Upcoming</Text>
-              {Object.keys(upcomingByDate)
-                .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-                .map((dayKey) => (
-                  <View key={`up-${dayKey}`}>
-                    <Text style={styles.dateHeader}>
-                      {formatDayKey(dayKey)}
-                    </Text>
-                    {upcomingByDate[dayKey].map((sub, idx) => (
-                      <SubscriptionCard
-                        id={sub.id}
-                        key={`up-${sub.name}-${idx}`}
-                        link={sub.link}
-                        name={sub.name}
-                        category={sub.category}
-                        price={sub.price}
-                        billingCycle={
-                          sub.billingCycle === "custom" &&
-                          (sub as any).customEvery &&
-                          (sub as any).customUnit
-                            ? `Every ${(sub as any).customEvery} ${
-                                (sub as any).customUnit
-                              }${(sub as any).customEvery > 1 ? "s" : ""}`
-                            : sub.billingCycle
-                        }
-                        onPress={() => handleCardPress(sub)}
-                      />
-                    ))}
-                  </View>
-                ))}
-            </View>
-          )}
+          <SubscriptionListSection
+            title="Upcoming"
+            byDate={upcomingSubscriptionsByDate}
+            formatDayKey={formatDateKey}
+            handleCardPress={handleSubscriptionCardPress}
+            sectionKeyPrefix="up"
+          />
 
-          {Object.keys(previousByDate).length > 0 && (
-            <View style={{ marginTop: 16 }}>
-              <Text style={styles.sectionHeader}>Previous</Text>
-              {Object.keys(previousByDate)
-                .sort((a, b) => (a > b ? -1 : a < b ? 1 : 0))
-                .map((dayKey) => (
-                  <View key={`prev-${dayKey}`}>
-                    <Text style={styles.dateHeader}>
-                      {formatDayKey(dayKey)}
-                    </Text>
-                    {previousByDate[dayKey].map((sub, idx) => (
-                      <SubscriptionCard
-                        id={sub.id}
-                        key={`prev-${sub.name}-${idx}`}
-                        link={sub.link}
-                        name={sub.name}
-                        category={sub.category}
-                        price={sub.price}
-                        billingCycle={
-                          sub.billingCycle === "custom" &&
-                          (sub as any).customEvery &&
-                          (sub as any).customUnit
-                            ? `Every ${(sub as any).customEvery} ${
-                                (sub as any).customUnit
-                              }${(sub as any).customEvery > 1 ? "s" : ""}`
-                            : sub.billingCycle
-                        }
-                        onPress={() => handleCardPress(sub)}
-                      />
-                    ))}
-                  </View>
-                ))}
-            </View>
-          )}
+          <SubscriptionListSection
+            title="Previous"
+            byDate={previousSubscriptionsByDate}
+            formatDayKey={formatDateKey}
+            handleCardPress={handleSubscriptionCardPress}
+            sectionKeyPrefix="prev"
+          />
 
-          {Object.keys(upcomingByDate).length === 0 &&
-            Object.keys(previousByDate).length === 0 && (
+          {Object.keys(upcomingSubscriptionsByDate).length === 0 &&
+            Object.keys(previousSubscriptionsByDate).length === 0 && (
               <View style={{ paddingVertical: 16 }}>
                 <Text style={{ color: "#6B7280", fontSize: 14 }}>
                   No subscriptions found for this month.
@@ -228,6 +154,44 @@ export default function SubscriptionOverview() {
     </View>
   );
 }
+
+const SubscriptionListSection: React.FC<SubscriptionListSectionProps> = ({
+  title,
+  byDate,
+  formatDayKey,
+  handleCardPress,
+  sectionKeyPrefix,
+}) => {
+  if (Object.keys(byDate).length === 0) {
+    return null;
+  }
+
+  const sortedKeys = Object.keys(byDate).sort((a, b) =>
+    title === "Upcoming" ? (a < b ? -1 : 1) : a > b ? -1 : 1
+  );
+  return (
+    <View style={{ marginTop: 8 }}>
+      <Text style={styles.sectionHeader}>{title}</Text>
+      {sortedKeys.map((dayKey) => (
+        <View key={`${sectionKeyPrefix}-${dayKey}`}>
+          <Text style={styles.dateHeader}>{formatDayKey(dayKey)}</Text>
+          {byDate[dayKey].map((sub, idx) => (
+            <SubscriptionCard
+              id={sub.id}
+              key={`${sectionKeyPrefix}-${sub.name}-${idx}`}
+              link={sub.link}
+              name={sub.name}
+              category={sub.category}
+              price={sub.price}
+              billingCycle={getSubscriptionCycleLabel(sub)}
+              onPress={() => handleCardPress(sub)}
+            />
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

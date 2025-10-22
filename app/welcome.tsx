@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -26,9 +26,6 @@ export default function Welcome() {
           >
             <Text style={styles.primaryText}>Get Started</Text>
           </Pressable>
-          <Text style={styles.footerText}>
-            Already have an account? <Link href="/login">Log in</Link>
-          </Text>
         </View>
       </View>
     </SafeAreaView>

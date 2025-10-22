@@ -1,7 +1,10 @@
+import { capitalize } from "@/utils/string";
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import React, { useState } from "react";
 import {
   Image,
+  Modal,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,7 +13,7 @@ import {
 } from "react-native";
 
 export type SubscriptionDetailsProps = {
-  id?: string;
+  id: string;
   link?: string;
   name?: string;
   isActive?: boolean;
@@ -25,6 +28,7 @@ export type SubscriptionDetailsProps = {
 };
 
 const SubscriptionDetailsCard = ({
+  id,
   link,
   name,
   isActive,
@@ -33,16 +37,29 @@ const SubscriptionDetailsCard = ({
   category,
   billingCycle,
   signupDate,
-  lastPayment,
   onManage,
   onDelete,
 }: SubscriptionDetailsProps) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const details = [
-    { label: "Category", value: category },
+    {
+      label: "Category",
+      value: category && capitalize(category),
+    },
     { label: "Billing Cycle", value: billingCycle },
     { label: "Sign-up Date", value: signupDate },
-    { label: "Last Payment", value: lastPayment },
+    { label: "Next Payment", value: nextBilling },
   ];
+
+  const handleDeleteConfirm = () => {
+    setShowDeleteModal(false);
+    onDelete?.();
+  };
+
+  const handleDeletePress = () => {
+    setShowDeleteModal(true);
+  };
 
   return (
     <View style={styles.wrapper}>
@@ -110,12 +127,61 @@ const SubscriptionDetailsCard = ({
             <TouchableOpacity style={styles.manageButton} onPress={onManage}>
               <Text style={styles.manageText}>Manage</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={handleDeletePress}
+            >
               <Ionicons name="trash-outline" size={20} color="#D9534F" />
             </TouchableOpacity>
           </View>
         </ScrollView>
       </View>
+
+      <Modal
+        animationType="fade"
+        transparent
+        visible={showDeleteModal}
+        onRequestClose={() => setShowDeleteModal(false)}
+      >
+        <Pressable
+          style={styles.modalBackdrop}
+          onPress={() => setShowDeleteModal(false)}
+        >
+          <Pressable
+            style={styles.deleteModalCard}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View style={styles.deleteModalContent}>
+              <Ionicons
+                name="trash-outline"
+                size={40}
+                color="#D9534F"
+                style={styles.deleteIcon}
+              />
+              <Text style={styles.deleteModalTitle}>Delete Subscription?</Text>
+              <Text style={styles.deleteModalMessage}>
+                Are you sure you want to delete {name}? This action cannot be
+                undone.
+              </Text>
+            </View>
+
+            <View style={styles.deleteModalActions}>
+              <Pressable
+                style={styles.cancelButton}
+                onPress={() => setShowDeleteModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                style={styles.confirmDeleteButton}
+                onPress={handleDeleteConfirm}
+              >
+                <Text style={styles.confirmDeleteButtonText}>Delete</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
@@ -257,7 +323,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#222",
   },
-
   footer: {
     flexDirection: "row",
     alignItems: "center",
@@ -282,5 +347,76 @@ const styles = StyleSheet.create({
     backgroundColor: "#F4F4F4",
     borderRadius: 14,
     padding: 14,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteModalCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    width: "85%",
+    maxWidth: 320,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8,
+  },
+  deleteModalContent: {
+    alignItems: "center",
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+  },
+  deleteIcon: {
+    marginBottom: 12,
+  },
+  deleteModalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#111",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  deleteModalMessage: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    lineHeight: 20,
+  },
+  deleteModalActions: {
+    flexDirection: "row",
+    gap: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "#EAEAEA",
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: "#F4F4F4",
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#111",
+  },
+  confirmDeleteButton: {
+    flex: 1,
+    backgroundColor: "#D9534F",
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  confirmDeleteButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#fff",
   },
 });

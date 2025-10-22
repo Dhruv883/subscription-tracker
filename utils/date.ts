@@ -1,25 +1,24 @@
 import type { BillingCycle } from "@/types/subscription";
 
 export function formatDate(iso: string, short = false) {
-  const d = new Date(iso);
+  const date = new Date(iso);
+
   const opts: Intl.DateTimeFormatOptions = short
     ? { month: "short", day: "2-digit" }
     : { year: "numeric", month: "short", day: "2-digit" };
-  return new Intl.DateTimeFormat("en-US", opts).format(d);
+  return new Intl.DateTimeFormat("en-US", opts).format(date);
 }
 
 export function addDaysIso(days: number) {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return d.toISOString();
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString();
 }
 
 export function sampleDate(daysAhead: number) {
   return addDaysIso(daysAhead);
 }
 
-// Normalize a user-entered date string to YYYY-MM-DD for Postgres 'date' columns.
-// Supports inputs like 'dd-mm-yyyy', 'dd/mm/yyyy', 'dd.mm.yyyy' and already-ISO 'yyyy-mm-dd' variants.
 export function normalizeToISODate(input: string): string | null {
   if (!input) return null;
   const s = input.trim();
@@ -67,7 +66,6 @@ function isValidYMD(y: number, m: number, d: number) {
   );
 }
 
-// --- New helpers for month navigation and recurrence calculations ---
 export function startOfMonth(year: number, monthIndex: number): Date {
   return new Date(year, monthIndex, 1, 0, 0, 0, 0);
 }
@@ -87,7 +85,6 @@ export function addWeeks(date: Date, weeks: number): Date {
 }
 
 export function addMonthsClamp(date: Date, months: number): Date {
-  // Clamp to end of month when the original day doesn't exist in the target month
   const y = date.getFullYear();
   const m = date.getMonth();
   const d = date.getDate();
@@ -116,90 +113,21 @@ export function monthsDiff(from: Date, to: Date): number {
 type OccurrenceArgs = {
   anchorIso: string;
   billingCycle: BillingCycle;
-  customEvery?: number;
+  customPeriod?: number;
   customUnit?: "day" | "week" | "month" | "year";
   year: number;
-  monthIndex: number; // 0-11
+  monthIndex: number;
 };
 
-// Returns the first occurrence on or after the start of the target month, if it falls within the month; otherwise null.
-export function getOccurrenceInMonth(args: OccurrenceArgs): Date | null {
-  const { anchorIso, billingCycle, customEvery, customUnit, year, monthIndex } =
-    args;
-  if (!anchorIso) return null;
-  const anchor = new Date(anchorIso);
-  if (isNaN(anchor.getTime())) return null;
-
-  const start = startOfMonth(year, monthIndex);
-  const end = endOfMonth(year, monthIndex);
-
-  // Determine period step
-  let stepDays = 0;
-  let stepMonths = 0;
-  switch (billingCycle) {
-    case "weekly":
-      stepDays = 7;
-      break;
-    case "monthly":
-      stepMonths = 1;
-      break;
-    case "quarterly":
-      stepMonths = 3;
-      break;
-    case "yearly":
-      stepMonths = 12;
-      break;
-    case "custom": {
-      const n = customEvery && customEvery > 0 ? customEvery : 0;
-      if (!n || !customUnit) return null;
-      if (customUnit === "day") stepDays = n;
-      else if (customUnit === "week") stepDays = n * 7;
-      else if (customUnit === "month") stepMonths = n;
-      else if (customUnit === "year") stepMonths = n * 12;
-      break;
-    }
-    default:
-      break;
-  }
-
-  // If anchor is before start, jump forward in multiples of the period
-  let candidate: Date = anchor;
-
-  if (stepMonths > 0) {
-    if (candidate < start) {
-      const diff = monthsDiff(candidate, start);
-      const steps = Math.ceil(diff / stepMonths);
-      candidate = addMonthsClamp(candidate, steps * stepMonths);
-    }
-    // If candidate still before start due to clamping day-of-month, step one more time
-    while (candidate < start) {
-      candidate = addMonthsClamp(candidate, stepMonths);
-    }
-  } else if (stepDays > 0) {
-    if (candidate < start) {
-      const msDiff = start.getTime() - candidate.getTime();
-      const daysDiff = Math.ceil(msDiff / (24 * 60 * 60 * 1000));
-      const steps = Math.ceil(daysDiff / stepDays);
-      candidate = addDays(candidate, steps * stepDays);
-    }
-    while (candidate < start) {
-      candidate = addDays(candidate, stepDays);
-    }
-  } else {
-    // Unknown or unsupported cycle; treat anchor as the only occurrence
-    if (candidate < start) return null;
-  }
-
-  if (candidate >= start && candidate <= end) return candidate;
-  return null;
-}
-
-// Returns all occurrences within the target month (inclusive). For monthly/quarterly/yearly
-// and custom month/year periods, at most one occurrence is returned. For weekly and custom
-// day/week periods, multiple occurrences per month can be returned.
 export function getOccurrencesInMonth(args: OccurrenceArgs): Date[] {
-  const { anchorIso, billingCycle, customEvery, customUnit, year, monthIndex } =
-    args;
+  const {
+    anchorIso,
+    billingCycle,
+    customPeriod,
+    customUnit,
+    year,
+    monthIndex,
+  } = args;
   if (!anchorIso) return [];
   const anchor = new Date(anchorIso);
   if (isNaN(anchor.getTime())) return [];
@@ -207,7 +135,6 @@ export function getOccurrencesInMonth(args: OccurrenceArgs): Date[] {
   const start = startOfMonth(year, monthIndex);
   const end = endOfMonth(year, monthIndex);
 
-  // Determine period step
   let stepDays = 0;
   let stepMonths = 0;
   switch (billingCycle) {
@@ -224,7 +151,7 @@ export function getOccurrencesInMonth(args: OccurrenceArgs): Date[] {
       stepMonths = 12;
       break;
     case "custom": {
-      const n = customEvery && customEvery > 0 ? customEvery : 0;
+      const n = customPeriod && customPeriod > 0 ? customPeriod : 0;
       if (!n || !customUnit) return [];
       if (customUnit === "day") stepDays = n;
       else if (customUnit === "week") stepDays = n * 7;
@@ -247,9 +174,7 @@ export function getOccurrencesInMonth(args: OccurrenceArgs): Date[] {
     }
     while (candidate < start) candidate = addMonthsClamp(candidate, stepMonths);
     if (candidate >= start && candidate <= end) results.push(candidate);
-    // Next month step will jump out of the current month, so no loop needed
   } else {
-    // stepDays > 0 (weekly or custom day/week). If stepDays==0, treat anchor as one-off
     if (stepDays > 0) {
       if (candidate < start) {
         const msDiff = start.getTime() - candidate.getTime();
@@ -262,7 +187,6 @@ export function getOccurrencesInMonth(args: OccurrenceArgs): Date[] {
         candidate = addDays(candidate, stepDays);
       }
     } else {
-      // Unknown or unsupported cycle; treat anchor as the only occurrence
       if (candidate >= start && candidate <= end) results.push(candidate);
     }
   }
